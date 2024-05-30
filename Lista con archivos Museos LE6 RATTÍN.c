@@ -1,0 +1,90 @@
+#include <stdio.h>
+#include <stdlib.h>
+#define MAX_MUS 10
+#define SALIR 3
+typedef struct museosbs{
+    char Nombre[50];
+    char Direccion[50];
+    struct museosbs *next;
+}museosbs_t;
+
+museosbs_t * lista_museos=NULL;
+void menu(FILE *);
+void imprimir_museosbs(museosbs_t * museosbs);
+void pedir_datos(museosbs_t * museosbs);
+void ver_lista(void);
+void cargar_museosbs(FILE *);
+void liberar_memoria(void);
+
+int main(){
+    FILE *listarchivos = fopen ("LISTARCHIVO_MUSEOS.txt", "wt");
+    if (listarchivos == NULL){
+        printf ("Error al imprimir el archivo. \n");
+        return 1;
+    }
+    menu(listarchivos);
+    liberar_memoria();
+    fclose(listarchivos);
+    return 0;
+}
+
+void imprimir_museosbs(museosbs_t * museosbs){
+    printf("Nombre: %s\n",museosbs->Nombre);
+    printf("Direccion: %s\n",museosbs->Direccion);
+    printf("+++++++++++++++++++++++\n\n");
+}
+
+void pedir_datos(museosbs_t * museosbs){
+    printf("Por favor ingrese el nombre de un museo de Buenos Aires:\n");
+    scanf(" %[^\n]",museosbs->Nombre);
+    printf("Ahora ingrese la direccion de dicho museo:\n");
+    scanf(" %[^\n]",museosbs->Direccion);
+
+}
+
+void menu(FILE *listarchivos){
+    int opcion;
+    do{
+        printf("1_Cargar un nuevo museo de Buenos Aires\n");
+        printf("2_Ver todos los museos de Buenos Aires cargados\n");
+        printf("3_Salir del programa de mueseos de Buenos Aires\n");
+        scanf(" %d",&opcion);
+        if(opcion==1)cargar_museosbs(listarchivos);
+        if(opcion==2)ver_lista();
+    }while(opcion!=SALIR);
+    
+}
+
+void cargar_museosbs(FILE *listarchivos){
+    museosbs_t * museosbs_aux;
+    museosbs_aux=(museosbs_t *)malloc(sizeof(museosbs_t));
+    if(museosbs_aux==NULL){
+        printf("La memoria es insuficiente\n");
+    }else{
+        pedir_datos(museosbs_aux);
+        fprintf(listarchivos, "Nombre: %s\n", museosbs_aux->Nombre);
+        fprintf(listarchivos, "Direccion: %s\n", museosbs_aux->Direccion);
+        fflush(listarchivos);
+        museosbs_aux->next=lista_museos;
+        lista_museos=museosbs_aux;
+    }
+    
+}
+
+void ver_lista(void){
+    museosbs_t *lista=lista_museos;
+    while(lista!=NULL){
+        imprimir_museosbs(lista);
+        lista=lista->next;
+    }
+    
+}
+
+void liberar_memoria(void){
+    museosbs_t * aux=NULL;
+    while(lista_museos!=NULL){
+        aux=lista_museos;
+        lista_museos=lista_museos->next;
+        free(aux);
+    }
+}
